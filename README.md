@@ -4,6 +4,9 @@ Solution for recommender systems challenge at Polimi for the accademic year 2022
 
 ## Files
 
+`data.zip` contains the offical files given for the competition.
+Extract it inside the root folder of the project.
+
 ### interactions_and_impressions.csv
 
 Contains the training set, describing implicit preferences expressed by the users.

@@ -77,6 +77,7 @@ def save_recommendations(rec):
 
             user_mapped_id = user_original_id_to_mapped_id[user_original_id]
             items_list = rec.recommend(user_mapped_id, 10)
+
             for i in range(len(items_list)):
                 items_list[i] = item_mapped_id_to_original_id[items_list[i]]
             items_list = map(str, items_list)

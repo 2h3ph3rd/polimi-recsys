@@ -26,6 +26,6 @@ def recommend():
         verbose=True
     )
 
-    rec.fit(topK=10, alpha=0.5, implicit=True)
+    rec.fit(topK=10, alpha=0.5)
 
     return rec

@@ -12,20 +12,17 @@ import utilities
 
 def recommend():
 
-    path = os.path.join(utilities.base_path, "urm.npz")
-    URM = sparse.load_npz(path)
-
-    path = os.path.join(utilities.base_path, "icm.npz")
-    ICM = sparse.load_npz(path)
+    URM = utilities.load_sparse_matrix("urm.npz")
+    ICM = utilities.load_sparse_matrix("icm.npz")
 
     ICM_combined = sparse.hstack((URM.T, ICM), format='csr')
 
     rec = RP3betaCBFRecommender(
         URM_train=URM,
         ICM_train=ICM_combined,
-        verbose=True
+        verbose=True,
     )
 
-    rec.fit(topK=10, alpha=0.5)
+    rec.fit(topK=10, alpha=0.7, beta=0.3)
 
     return rec

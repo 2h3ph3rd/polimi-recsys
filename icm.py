@@ -47,6 +47,4 @@ def calculate_ICM():
         utilities.pretty_print_progress(
             i, df.shape[0], "Calculating ICM with items length")
 
-    ICM = sparse.csr_matrix(ICM)
-    path = os.path.join(utilities.base_path, "icm.npz")
-    sparse.save_npz(path, ICM)
+    utilities.save_sparse_matrix(ICM, "icm.npz")

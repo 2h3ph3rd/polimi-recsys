@@ -2,8 +2,11 @@
 
 import pandas as pd
 import numpy as np
+from scipy import sparse
 import os
 import csv
+
+from Recommenders.Recommender_utils import check_matrix
 
 
 base_path = "data"
@@ -89,9 +92,33 @@ def save_recommendations(rec):
                 user_original_id, num_users_to_recommend, "Saving recommendations")
 
 
-def pretty_print_progress(current, total, prepend):
+def pretty_print_progress(current, total, prepend, interval=100):
     if current == total - 1:
         print(" " * 100, end="\r")
         print(prepend, "finished!")
-    elif current % 100 == 0:
+    elif current % interval == 0:
         print("%s %8s of %8s" % (prepend, current, total), end="\r")
+
+
+def combine(ICM: sparse.csr_matrix, URM: sparse.csr_matrix):
+    return sparse.hstack((URM.T, ICM), format='csr')
+
+
+def save_sparse_matrix(m, filename='m.npz'):
+    m = sparse.csr_matrix(m)
+    path = os.path.join(base_path, filename)
+    sparse.save_npz(path, m)
+    print("Saved", filename)
+
+
+def load_sparse_matrix(filename):
+    path = os.path.join(base_path, filename)
+    print("Loaded", filename)
+    return sparse.load_npz(path)
+
+
+def linear_scaling_confidence(URM_train, alpha):
+    C = check_matrix(URM_train, format="csr", dtype=np.float32)
+    C.data = 1.0 + alpha * C.data
+
+    return C

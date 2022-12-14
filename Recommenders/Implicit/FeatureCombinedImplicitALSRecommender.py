@@ -1,6 +1,7 @@
 import implicit
 from ..BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
-from src.Utils.ICM_preprocessing import *
+
+import utilities
 
 
 class FeatureCombinedImplicitALSRecommender(BaseMatrixFactorizationRecommender):
@@ -29,7 +30,7 @@ class FeatureCombinedImplicitALSRecommender(BaseMatrixFactorizationRecommender):
                                                         num_threads=num_threads)
 
         self.rec.fit(
-            combine(
+            utilities.combine(
                 confidence_scaling(
                     self.ICM_train,
                     **confidence_args['ICM']

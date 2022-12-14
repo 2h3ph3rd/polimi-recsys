@@ -14,7 +14,7 @@ from sklearn.linear_model import ElasticNet
 from sklearn.exceptions import ConvergenceWarning
 
 from ..BaseSimilarityMatrixRecommender import BaseItemSimilarityMatrixRecommender
-from ..Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
+from Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 import time
 import sys
 import warnings

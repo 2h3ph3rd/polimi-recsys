@@ -10,7 +10,6 @@ import icm
 import recommend
 import utilities
 
-
 if "urm" in sys.argv:
     urm.calculate_URM()
     exit()

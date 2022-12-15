@@ -73,7 +73,6 @@ class SLIMElasticNetRecommender(BaseItemSimilarityMatrixRecommender):
 
         # fit each item's factors sequentially (not in parallel)
         for currentItem in range(n_items):
-
             # get the target column
             y = URM_train[:, currentItem].toarray()
 

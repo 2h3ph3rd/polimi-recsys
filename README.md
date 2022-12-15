@@ -2,7 +2,7 @@
 
 Solution for recommender systems challenge at Polimi for the accademic year 2022/2023.
 
-## Files
+## Data
 
 `data.zip` contains the offical files given for the competition.
 Extract it inside the root folder of the project.
@@ -45,3 +45,11 @@ The submission file should contain all and only these users.
 - The type of some items (tv/film)
 - Some of the user interactions
 - How many elements is composed of each item
+
+## History
+
+| score   | recommenders                                                                            |
+| ------- | --------------------------------------------------------------------------------------- |
+| 0.0508  | RP3betaCBF(alpha=0.7, beta=0.3)                                                         |
+| 0.04535 | RP3betaCBF(alpha=0.7, beta=0.3) + MultiThreadSLIM_ElasticNet(alpha=0.05, l1_ratio=0.08) |
+| 0.04930 | RP3betaCBF(alpha=0.7, beta=0.3) + MultiThreadSLIM_ElasticNet(alpha=1, l1_ratio=0.1)     |

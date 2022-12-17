@@ -6,6 +6,7 @@ import numpy as np
 from scipy import sparse
 
 from Recommenders.Implicit.FeatureCombinedImplicitALSRecommender import FeatureCombinedImplicitALSRecommender
+from Recommenders.GraphBased.P3alphaRecommender import P3alphaRecommender
 from Recommenders.GraphBased.RP3betaCBFRecommender import RP3betaCBFRecommender
 from Recommenders.GraphBased.P3alphaCBFRecommender import P3alphaCBFRecommender
 from Recommenders.Hybrid.GeneralizedMergedHybridRecommender import GeneralizedMergedHybridRecommender
@@ -23,9 +24,12 @@ def recommend():
 
     recommenders = []
 
+    recommenders.append(P3alpha(URM))
+    recommenders.append(P3alphaCBF(URM, ICM_combined))
+    recommenders.append(RP3betaCBF(URM, ICM_combined))
+
     # recommenders.append(ials_recommender(URM, ICM_combined))
-    recommenders.append(rp3beta_recommender(URM, ICM_combined))
-    recommenders.append(slim_recommender(URM, ICM_combined))
+    # recommenders.append(slim_recommender(URM, ICM_combined))
     # recommenders.append(p3alpha_recommender(URM, ICM_combined))
 
     rec = GeneralizedMergedHybridRecommender(
@@ -33,22 +37,14 @@ def recommend():
         recommenders=recommenders,
         verbose=True
     )
-
-    rec.fit(
-        alphas=[
-            0.7,
-            0.3,
-            # 0.3
-        ]
-    )
-
+    rec.fit(alphas=[0.2, 0.4, 0.7])
     return rec
 
 
-def ials_recommender(URM, ICM_combined):
+def ials_recommender(URM, ICM):
     rec = FeatureCombinedImplicitALSRecommender(
         URM_train=URM,
-        ICM_train=ICM_combined,
+        ICM_train=ICM,
         verbose=True
     )
 
@@ -68,7 +64,16 @@ def ials_recommender(URM, ICM_combined):
     return rec
 
 
-def p3alpha_recommender(URM, ICM_combined):
+def P3alpha(URM):
+    rec = P3alphaRecommender(
+        URM_train=URM,
+        verbose=True,
+    )
+    rec.fit(topK=100, alpha=0.7)
+    return rec
+
+
+def P3alphaCBF(URM, ICM_combined):
     rec = P3alphaCBFRecommender(
         URM_train=URM,
         ICM_train=ICM_combined,
@@ -78,7 +83,7 @@ def p3alpha_recommender(URM, ICM_combined):
     return rec
 
 
-def rp3beta_recommender(URM, ICM_combined):
+def RP3betaCBF(URM, ICM_combined):
     rec = RP3betaCBFRecommender(
         URM_train=URM,
         ICM_train=ICM_combined,
@@ -89,15 +94,15 @@ def rp3beta_recommender(URM, ICM_combined):
 
 
 def slim_recommender(URM, ICM_combined):
-    rec = SLIM_recommender = MultiThreadSLIM_ElasticNet(
+    rec = MultiThreadSLIM_ElasticNet(
         URM_train=ICM_combined.T,
         verbose=True
     )
-    SLIM_recommender.fit(
-        alpha=1.0,
+    rec.fit(
+        alpha=0.7,
         l1_ratio=0.1,
         topK=100,
         workers=6
     )
-    SLIM_recommender.URM_train = URM
+    rec.URM_train = URM
     return rec

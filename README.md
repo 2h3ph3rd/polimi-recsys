@@ -53,3 +53,4 @@ The submission file should contain all and only these users.
 | 0.0508  | RP3betaCBF(alpha=0.7, beta=0.3)                                                         |
 | 0.04535 | RP3betaCBF(alpha=0.7, beta=0.3) + MultiThreadSLIM_ElasticNet(alpha=0.05, l1_ratio=0.08) |
 | 0.04930 | RP3betaCBF(alpha=0.7, beta=0.3) + MultiThreadSLIM_ElasticNet(alpha=1, l1_ratio=0.1)     |
+| 0.04934 | RP3betaCBF(alpha=0.85, beta=0.35)                                                       |

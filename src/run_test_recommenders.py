@@ -13,7 +13,7 @@ import shutil
 
 from src.Recommenders.BaseCBFRecommender import BaseItemCBFRecommender, BaseUserCBFRecommender
 
-from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
+from src.Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from src.Data_manager.Movielens.Movielens1MReader import Movielens1MReader
 from src.Data_manager.DataSplitter_leave_k_out import DataSplitter_leave_k_out
 from src.Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping

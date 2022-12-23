@@ -14,7 +14,7 @@ import os
 from skopt.space import Real, Integer, Categorical
 from src.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 
-from HyperparameterTuning.SearchAbstractClass import SearchAbstractClass
+from src.HyperparameterTuning.SearchAbstractClass import SearchAbstractClass
 import traceback
 
 

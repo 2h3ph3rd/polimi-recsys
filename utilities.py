@@ -43,14 +43,17 @@ def combine(ICM: sparse.csr_matrix, URM: sparse.csr_matrix):
     return sparse.hstack((URM.T, ICM), format='csr')
 
 
-def save_sparse_matrix(m, filename='m.npz', base_path='./data'):
-    m = sparse.csr_matrix(m)
+def numpy_to_sparse(m):
+    return sparse.csr_matrix(m)
+
+
+def save_sparse_matrix(m, filename, base_path='./data'):
     path = os.path.join(base_path, filename)
     sparse.save_npz(path, m)
     print("Saved", filename)
 
 
-def load_sparse_matrix(base_path, filename):
+def load_sparse_matrix(filename, base_path='./data'):
     path = os.path.join(base_path, filename)
     print("Loaded", filename)
     return sparse.load_npz(path)

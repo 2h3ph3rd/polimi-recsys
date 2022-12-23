@@ -63,9 +63,9 @@ from src.Recommenders.FeatureWeighting.Cython.FBSM_Rating_Cython import FBSM_Rat
 from skopt.space import Real, Integer, Categorical
 import traceback
 
-from HyperparameterTuning.SearchBayesianSkopt import SearchBayesianSkopt
-from HyperparameterTuning.SearchSingleCase import SearchSingleCase
-from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
+from src.HyperparameterTuning.SearchBayesianSkopt import SearchBayesianSkopt
+from src.HyperparameterTuning.SearchSingleCase import SearchSingleCase
+from src.HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 
 ######################################################################
 
@@ -1071,7 +1071,7 @@ def read_data_split_and_search():
         # SLIMElasticNetRecommender
     ]
 
-    from Evaluation.Evaluator import EvaluatorHoldout
+    from src.Evaluation.Evaluator import EvaluatorHoldout
 
     evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=[5])
     evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=[5, 10])

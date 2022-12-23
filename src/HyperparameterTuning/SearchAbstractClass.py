@@ -13,7 +13,7 @@ import pandas as pd
 from src.Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 import numpy as np
 from src.Recommenders.DataIO import DataIO
-from Evaluation.Evaluator import get_result_string_df
+from src.Evaluation.Evaluator import get_result_string_df
 from numpy.core._exceptions import _ArrayMemoryError
 
 MEMORY_ERROR_EXCEPTION_TUPLE = (_ArrayMemoryError, MemoryError)

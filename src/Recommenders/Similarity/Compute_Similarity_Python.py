@@ -175,7 +175,7 @@ class Compute_Similarity_Python:
         :return:
         """
 
-        self.dataMatrix = recommender_src.Utils.check_matrix(
+        self.dataMatrix = recommender_utils.check_matrix(
             self.dataMatrix, 'csr')
 
         interactionsPerRow = np.diff(self.dataMatrix.indptr)
@@ -209,7 +209,7 @@ class Compute_Similarity_Python:
         :return:
         """
 
-        self.dataMatrix = recommender_src.Utils.check_matrix(
+        self.dataMatrix = recommender_utils.check_matrix(
             self.dataMatrix, 'csc')
 
         interactionsPerCol = np.diff(self.dataMatrix.indptr)
@@ -280,7 +280,7 @@ class Compute_Similarity_Python:
             self.useOnlyBooleanInteractions()
 
         # We explore the matrix column-wise
-        self.dataMatrix = recommender_src.Utils.check_matrix(
+        self.dataMatrix = recommender_utils.check_matrix(
             self.dataMatrix, 'csc')
 
         # Compute sum of squared values to be used in normalization
@@ -296,7 +296,7 @@ class Compute_Similarity_Python:
             sum_of_squared_to_1_minus_alpha = np.power(
                 sum_of_squared + 1e-6, 2 * (1 - self.asymmetric_alpha))
 
-        self.dataMatrix = recommender_src.Utils.check_matrix(
+        self.dataMatrix = recommender_utils.check_matrix(
             self.dataMatrix, 'csc')
 
         start_col_local = 0

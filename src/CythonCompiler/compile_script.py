@@ -14,19 +14,20 @@ python compile_script.py filename.pyx build_ext --inplace
 
 
 try:
+import re
+import sys
+import numpy
+from Cython.Distutils import build_ext
     from setuptools import setup
     from setuptools import Extension
 except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
-
-
-from Cython.Distutils import build_ext
-import numpy, sys, re
+    from distsrc.Utils.core import setup
+    from distsrc.Utils.extension import Extension
 
 
 if len(sys.argv) != 4:
-    raise ValueError("Wrong number of parameters received. Expected 4, got {}".format(sys.argv))
+    raise ValueError(
+        "Wrong number of parameters received. Expected 4, got {}".format(sys.argv))
 
 # Get the name of the file to compile
 fileToCompile = sys.argv[1]
@@ -38,10 +39,10 @@ extensionName = re.sub("\.pyx", "", fileToCompile)
 
 
 ext_modules = Extension(extensionName,
-                [fileToCompile],
-                extra_compile_args=['-O2'],
-                include_dirs=[numpy.get_include(),],
-                )
+                        [fileToCompile],
+                        extra_compile_args=['-O2'],
+                        include_dirs=[numpy.get_include(), ],
+                        )
 
 ext_modules.cython_directives = {'language_level': '3'}
 

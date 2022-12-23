@@ -10,11 +10,12 @@ import numpy as np
 import scipy.sparse as sps
 import warnings
 
-from Recommenders.Similarity.Compute_Similarity_Python import Compute_Similarity_Python
-from Recommenders.Similarity.Compute_Similarity_Euclidean import Compute_Similarity_Euclidean
+from src.Recommenders.Similarity.Compute_Similarity_Python import Compute_Similarity_Python
+from src.Recommenders.Similarity.Compute_Similarity_Euclidean import Compute_Similarity_Euclidean
 
 
 from enum import Enum
+
 
 class SimilarityFunction(Enum):
     COSINE = "cosine"
@@ -25,12 +26,9 @@ class SimilarityFunction(Enum):
     EUCLIDEAN = "euclidean"
 
 
-
-
 class Compute_Similarity:
 
-
-    def __init__(self, dataMatrix, use_implementation = "density", similarity = None, **args):
+    def __init__(self, dataMatrix, use_implementation="density", similarity=None, **args):
         """
         Interface object that will call the appropriate similarity implementation
         :param dataMatrix:              scipy sparse matrix |features|x|items| or |users|x|items|
@@ -42,17 +40,20 @@ class Compute_Similarity:
         """
 
         assert np.all(np.isfinite(dataMatrix.data)), \
-            "Compute_Similarity: Data matrix contains {} non finite values".format(np.sum(np.logical_not(np.isfinite(dataMatrix.data))))
+            "Compute_Similarity: Data matrix contains {} non finite values".format(
+                np.sum(np.logical_not(np.isfinite(dataMatrix.data))))
 
         self.dense = False
 
         if similarity == "euclidean":
             # This is only available here
-            self.compute_similarity_object = Compute_Similarity_Euclidean(dataMatrix, **args)
+            self.compute_similarity_object = Compute_Similarity_Euclidean(
+                dataMatrix, **args)
 
         else:
 
-            columns_with_full_features = np.sum(np.ediff1d(sps.csc_matrix(dataMatrix).indptr) == dataMatrix.shape[0])
+            columns_with_full_features = np.sum(np.ediff1d(
+                sps.csc_matrix(dataMatrix).indptr) == dataMatrix.shape[0])
 
             if similarity in ['dice', 'jaccard', 'tversky'] and columns_with_full_features >= dataMatrix.shape[1]/2:
                 warnings.warn("Compute_Similarity: {:.2f}% of the columns have all features, "
@@ -70,7 +71,6 @@ class Compute_Similarity:
             if similarity is not None:
                 args["similarity"] = similarity
 
-
             if use_implementation == "density":
 
                 if isinstance(dataMatrix, np.ndarray):
@@ -86,7 +86,8 @@ class Compute_Similarity:
                     self.dense = sparsity > 0.5
 
                 else:
-                    print("Compute_Similarity: matrix type not recognized, calling default...")
+                    print(
+                        "Compute_Similarity: matrix type not recognized, calling default...")
                     use_implementation = "python"
 
                 if self.dense:
@@ -95,33 +96,28 @@ class Compute_Similarity:
                 else:
                     use_implementation = "cython"
 
-
-
-
-
             if use_implementation == "cython":
 
                 try:
-                    from Recommenders.Similarity.Cython.Compute_Similarity_Cython import Compute_Similarity_Cython
-                    self.compute_similarity_object = Compute_Similarity_Cython(dataMatrix, **args)
+                    from src.Recommenders.Similarity.Cython.Compute_Similarity_Cython import Compute_Similarity_Cython
+                    self.compute_similarity_object = Compute_Similarity_Cython(
+                        dataMatrix, **args)
 
                 except ImportError:
-                    print("Unable to load Cython Compute_Similarity, reverting to Python")
-                    self.compute_similarity_object = Compute_Similarity_Python(dataMatrix, **args)
-
+                    print(
+                        "Unable to load Cython Compute_Similarity, reverting to Python")
+                    self.compute_similarity_object = Compute_Similarity_Python(
+                        dataMatrix, **args)
 
             elif use_implementation == "python":
-                self.compute_similarity_object = Compute_Similarity_Python(dataMatrix, **args)
+                self.compute_similarity_object = Compute_Similarity_Python(
+                    dataMatrix, **args)
 
             else:
 
-                raise  ValueError("Compute_Similarity: value for argument 'use_implementation' not recognized")
-
-
-
-
+                raise ValueError(
+                    "Compute_Similarity: value for argument 'use_implementation' not recognized")
 
     def compute_similarity(self,  **args):
 
         return self.compute_similarity_object.compute_similarity(**args)
-

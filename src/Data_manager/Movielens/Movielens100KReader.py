@@ -7,11 +7,12 @@ Created on 14/09/17
 """
 
 
-import zipfile, shutil
-from Data_manager.DatasetMapperManager import DatasetMapperManager
-from Data_manager.DataReader import DataReader
-from Data_manager.DataReader_utils import download_from_URL
-from Data_manager.Movielens._utils_movielens_parser import _loadURM
+import zipfile
+import shutil
+from src.Data_manager.DatasetMapperManager import DatasetMapperManager
+from src.Data_manager.DataReader import DataReader
+from src.Data_manager.DataReader_utils import download_from_URL
+from src.Data_manager.Movielens._utils_movielens_parser import _loadURM
 
 
 class Movielens100KReader(DataReader):
@@ -25,11 +26,10 @@ class Movielens100KReader(DataReader):
     def _get_dataset_name_root(self):
         return self.DATASET_SUBFOLDER
 
-
     def _load_from_original_file(self):
         # Load data from original
 
-        zipFile_path =  self.DATASET_SPLIT_ROOT_FOLDER + self.DATASET_SUBFOLDER
+        zipFile_path = self.DATASET_SPLIT_ROOT_FOLDER + self.DATASET_SUBFOLDER
 
         try:
 
@@ -43,12 +43,12 @@ class Movielens100KReader(DataReader):
 
             dataFile = zipfile.ZipFile(zipFile_path + "ml-100k.zip")
 
-
-        URM_path = dataFile.extract("ml-100k/u.data", path=zipFile_path + "decompressed/")
-
+        URM_path = dataFile.extract(
+            "ml-100k/u.data", path=zipFile_path + "decompressed/")
 
         self._print("Loading Interactions")
-        URM_all_dataframe, URM_timestamp_dataframe = _loadURM(URM_path, header=None, separator='\t')
+        URM_all_dataframe, URM_timestamp_dataframe = _loadURM(
+            URM_path, header=None, separator='\t')
 
         dataset_manager = DatasetMapperManager()
         dataset_manager.add_URM(URM_all_dataframe, "URM_all")
@@ -64,4 +64,3 @@ class Movielens100KReader(DataReader):
         self._print("Loading Complete")
 
         return loaded_dataset
-

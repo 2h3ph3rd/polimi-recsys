@@ -40,8 +40,8 @@ from libc.math cimport sqrt
 
 
 import scipy.sparse as sps
-from Recommenders.Recommender_utils import check_matrix
-from Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
+from src.Recommenders.Recommender_utils import check_matrix
+from src.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

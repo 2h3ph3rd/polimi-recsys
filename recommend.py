@@ -5,12 +5,12 @@ import pandas as pd
 import numpy as np
 from scipy import sparse
 
-from Recommenders.Implicit.FeatureCombinedImplicitALSRecommender import FeatureCombinedImplicitALSRecommender
-from Recommenders.GraphBased.P3alphaRecommender import P3alphaRecommender
-from Recommenders.GraphBased.RP3betaCBFRecommender import RP3betaCBFRecommender
-from Recommenders.GraphBased.P3alphaCBFRecommender import P3alphaCBFRecommender
-from Recommenders.Hybrid.GeneralizedMergedHybridRecommender import GeneralizedMergedHybridRecommender
-from Recommenders.SLIM_ElasticNet.SLIMElasticNetRecommender import MultiThreadSLIM_ElasticNet
+from src.Recommenders.Implicit.FeatureCombinedImplicitALSRecommender import FeatureCombinedImplicitALSRecommender
+from src.Recommenders.GraphBased.P3alphaRecommender import P3alphaRecommender
+from src.Recommenders.GraphBased.RP3betaCBFRecommender import RP3betaCBFRecommender
+from src.Recommenders.GraphBased.P3alphaCBFRecommender import P3alphaCBFRecommender
+from src.Recommenders.Hybrid.GeneralizedMergedHybridRecommender import GeneralizedMergedHybridRecommender
+from src.Recommenders.SLIM_ElasticNet.SLIMElasticNetRecommender import MultiThreadSLIM_ElasticNet
 
 import utilities
 
@@ -24,13 +24,13 @@ def recommend():
 
     recommenders = []
 
-    recommenders.append(P3alpha(URM))
-    recommenders.append(P3alphaCBF(URM, ICM_combined))
-    recommenders.append(RP3betaCBF(URM, ICM_combined))
+    src.Recommenders.append(P3alpha(URM))
+    src.Recommenders.append(P3alphaCBF(URM, ICM_combined))
+    src.Recommenders.append(RP3betaCBF(URM, ICM_combined))
 
-    # recommenders.append(ials_recommender(URM, ICM_combined))
-    # recommenders.append(slim_recommender(URM, ICM_combined))
-    # recommenders.append(p3alpha_recommender(URM, ICM_combined))
+    # src.Recommenders.append(ials_recommender(URM, ICM_combined))
+    # src.Recommenders.append(slim_recommender(URM, ICM_combined))
+    # src.Recommenders.append(p3alpha_recommender(URM, ICM_combined))
 
     rec = GeneralizedMergedHybridRecommender(
         URM_train=URM,

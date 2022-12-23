@@ -5,12 +5,13 @@
 @author: Maurizio Ferrari Dacrema
 """
 
-from Recommenders.Similarity.Compute_Similarity_Python import Incremental_Similarity_Builder
+from src.Recommenders.Similarity.Compute_Similarity_Python import Incremental_Similarity_Builder
 
 import numpy as np
 import scipy.sparse as sps
 import time
 import os
+
 
 def check_matrix(X, format='csc', dtype=np.float32):
     """
@@ -23,7 +24,6 @@ def check_matrix(X, format='csc', dtype=np.float32):
     :param dtype:
     :return:
     """
-
 
     if format == 'csc' and not isinstance(X, sps.csc_matrix):
         return X.tocsc().astype(dtype)
@@ -54,7 +54,7 @@ def check_matrix(X, format='csc', dtype=np.float32):
         return X.astype(dtype)
 
 
-def similarityMatrixTopK(item_weights, k=100, verbose = False, use_absolute_values = False):
+def similarityMatrixTopK(item_weights, k=100, verbose=False, use_absolute_values=False):
     """
     The function selects the TopK most similar elements, column-wise
 
@@ -66,10 +66,12 @@ def similarityMatrixTopK(item_weights, k=100, verbose = False, use_absolute_valu
     :return:
     """
 
-    assert (item_weights.shape[0] == item_weights.shape[1]), "selectTopK: ItemWeights is not a square matrix"
+    assert (item_weights.shape[0] == item_weights.shape[1]
+            ), "selectTopK: ItemWeights is not a square matrix"
 
     n_items = item_weights.shape[0]
-    similarity_builder = Incremental_Similarity_Builder(n_items, initial_data_block=n_items*k, dtype = np.float32)
+    similarity_builder = Incremental_Similarity_Builder(
+        n_items, initial_data_block=n_items*k, dtype=np.float32)
 
     start_time = time.time()
 
@@ -81,8 +83,8 @@ def similarityMatrixTopK(item_weights, k=100, verbose = False, use_absolute_valu
 
     # iterate over each column and keep only the top-k similar items
     if sparse_weights:
-        item_weights = check_matrix(item_weights, format='csc', dtype=np.float32)
-
+        item_weights = check_matrix(
+            item_weights, format='csc', dtype=np.float32)
 
     for item_idx in range(n_items):
 
@@ -94,20 +96,20 @@ def similarityMatrixTopK(item_weights, k=100, verbose = False, use_absolute_valu
             column_row_index = item_weights.indices[start_position:end_position]
 
         else:
-            column_data = item_weights[:,item_idx]
+            column_data = item_weights[:, item_idx]
             column_row_index = np.arange(n_items, dtype=np.int32)
 
-        if np.any(column_data==0):
-            non_zero_data = column_data!=0
+        if np.any(column_data == 0):
+            non_zero_data = column_data != 0
             column_data = column_data[non_zero_data]
             column_row_index = column_row_index[non_zero_data]
-
 
         # If there is less data than k, there is no need to sort
         if k < len(column_data):
             # Use argpartition because I only need to select "which" are the topK elements, I do not need their exact order
             if use_absolute_values:
-                top_k_idx = np.argpartition(-np.abs(column_data), k-1, axis=0)[:k]
+                top_k_idx = np.argpartition(-np.abs(column_data),
+                                            k-1, axis=0)[:k]
             else:
                 top_k_idx = np.argpartition(-column_data, k-1, axis=0)[:k]
 
@@ -117,27 +119,24 @@ def similarityMatrixTopK(item_weights, k=100, verbose = False, use_absolute_valu
             except:
                 pass
 
-
-        similarity_builder.add_data_lists(row_list_to_add = column_row_index,
-                                          col_list_to_add = np.ones(len(column_row_index), dtype = np.int) * item_idx,
-                                          data_list_to_add = column_data)
-
-
+        similarity_builder.add_data_lists(row_list_to_add=column_row_index,
+                                          col_list_to_add=np.ones(
+                                              len(column_row_index), dtype=np.int) * item_idx,
+                                          data_list_to_add=column_data)
 
     if verbose:
-        print("Sparse TopK matrix generated in {:.2f} seconds".format(time.time() - start_time))
+        print("Sparse TopK matrix generated in {:.2f} seconds".format(
+            time.time() - start_time))
 
     return similarity_builder.get_SparseMatrix()
 
 
-
-
 def areURMequals(URM1, URM2):
 
-    if(URM1.shape != URM2.shape):
+    if (URM1.shape != URM2.shape):
         return False
 
-    return (URM1-URM2).nnz ==0
+    return (URM1-URM2).nnz == 0
 
 
 def removeTopPop(URM_1, URM_2=None, percentageToRemove=0.2):
@@ -151,31 +150,33 @@ def removeTopPop(URM_1, URM_2=None, percentageToRemove=0.2):
              Array: removedItems
     """
 
-
-    item_pop = URM_1.sum(axis=0)  # this command returns a numpy.matrix of size (1, nitems)
+    # this command returns a numpy.matrix of size (1, nitems)
+    item_pop = URM_1.sum(axis=0)
 
     if URM_2 != None:
 
         assert URM_2.shape[1] == URM_1.shape[1], \
-            "The two URM do not contain the same number of columns, URM_1 has {}, URM_2 has {}".format(URM_1.shape[1], URM_2.shape[1])
+            "The two URM do not contain the same number of columns, URM_1 has {}, URM_2 has {}".format(
+                URM_1.shape[1], URM_2.shape[1])
 
         item_pop += URM_2.sum(axis=0)
 
-
-    item_pop = np.asarray(item_pop).squeeze()  # necessary to convert it into a numpy.array of size (nitems,)
+    # necessary to convert it into a numpy.array of size (nitems,)
+    item_pop = np.asarray(item_pop).squeeze()
     popularItemsSorted = np.argsort(item_pop)[::-1]
 
     numItemsToRemove = int(len(popularItemsSorted)*percentageToRemove)
 
     # Choose which columns to keep
-    itemMask = np.in1d(np.arange(len(popularItemsSorted)), popularItemsSorted[:numItemsToRemove],  invert=True)
+    itemMask = np.in1d(np.arange(len(popularItemsSorted)),
+                       popularItemsSorted[:numItemsToRemove],  invert=True)
 
     # Map the column index of the new URM to the original ItemID
     itemMappings = np.arange(len(popularItemsSorted))[itemMask]
 
     removedItems = np.arange(len(popularItemsSorted))[np.logical_not(itemMask)]
 
-    return URM_1[:,itemMask], itemMappings, removedItems
+    return URM_1[:, itemMask], itemMappings, removedItems
 
 
 def addZeroSamples(S_matrix, numSamplesToAdd):
@@ -225,18 +226,11 @@ def reshapeSparse(sparseMatrix, newShape):
         ValueError("New shape cannot be smaller than SparseMatrix. SparseMatrix shape is: {}, newShape is {}".format(
             sparseMatrix.shape, newShape))
 
-
     sparseMatrix = sparseMatrix.tocoo()
-    newMatrix = sps.csr_matrix((sparseMatrix.data, (sparseMatrix.row, sparseMatrix.col)), shape=newShape)
+    newMatrix = sps.csr_matrix(
+        (sparseMatrix.data, (sparseMatrix.row, sparseMatrix.col)), shape=newShape)
 
     return newMatrix
-
-
-
-
-
-
-
 
 
 def get_unique_temp_folder(input_temp_folder_path):
@@ -256,8 +250,8 @@ def get_unique_temp_folder(input_temp_folder_path):
     while os.path.isdir(progressive_temp_folder_name):
 
         counter_suffix += 1
-        progressive_temp_folder_name = input_temp_folder_path + "_" + str(counter_suffix)
-
+        progressive_temp_folder_name = input_temp_folder_path + \
+            "_" + str(counter_suffix)
 
     progressive_temp_folder_name += "/"
     os.makedirs(progressive_temp_folder_name)

@@ -6,7 +6,7 @@ from scipy import sparse
 import os
 import csv
 
-from Recommenders.Recommender_utils import check_matrix
+from src.Recommenders.Recommender_utils import check_matrix
 
 
 def save_recommendations(rec, users_df, user_original_id_to_mapped_id, item_mapped_id_to_original_id, num_users_to_recommend):
@@ -43,7 +43,7 @@ def combine(ICM: sparse.csr_matrix, URM: sparse.csr_matrix):
     return sparse.hstack((URM.T, ICM), format='csr')
 
 
-def save_sparse_matrix(m, base_path, filename='m.npz'):
+def save_sparse_matrix(m, filename='m.npz', base_path='./data'):
     m = sparse.csr_matrix(m)
     path = os.path.join(base_path, filename)
     sparse.save_npz(path, m)

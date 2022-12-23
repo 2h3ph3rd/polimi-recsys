@@ -1,12 +1,13 @@
 
-from Recommenders.Recommender_import_list import *
+from src.Recommenders.Recommender_import_list import *
 
-from Data_manager.Movielens.Movielens1MReader import Movielens1MReader
-from Data_manager.DataSplitter_leave_k_out import DataSplitter_leave_k_out
-from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
-from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender, BaseUserCBFRecommender
+from src.Data_manager.Movielens.Movielens1MReader import Movielens1MReader
+from src.Data_manager.DataSplitter_leave_k_out import DataSplitter_leave_k_out
+from src.Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
+from src.Recommenders.BaseCBFRecommender import BaseItemCBFRecommender, BaseUserCBFRecommender
 from Evaluation.Evaluator import EvaluatorHoldout
-import traceback, os
+import traceback
+import os
 
 
 def _get_instance(recommender_class, URM_train, ICM_all, UCM_all):
@@ -20,8 +21,8 @@ def _get_instance(recommender_class, URM_train, ICM_all, UCM_all):
 
     return recommender_object
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
 
     dataset_object = Movielens1MReader()
 
@@ -56,8 +57,7 @@ if __name__ == '__main__':
         LightFMCFRecommender,
         LightFMUserHybridRecommender,
         LightFMItemHybridRecommender,
-        ]
-
+    ]
 
     evaluator = EvaluatorHoldout(URM_test, [5, 20], exclude_seen=True)
 
@@ -70,16 +70,13 @@ if __name__ == '__main__':
                               "validation_metric": "MAP",
                               }
 
-
     output_root_path = "./result_experiments/"
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
         os.makedirs(output_root_path)
 
-
     logFile = open(output_root_path + "result_all_algorithms.txt", "a")
-
 
     for recommender_class in recommender_class_list:
 
@@ -87,7 +84,8 @@ if __name__ == '__main__':
 
             print("Algorithm: {}".format(recommender_class))
 
-            recommender_object = _get_instance(recommender_class, URM_train, ICM_all, UCM_all)
+            recommender_object = _get_instance(
+                recommender_class, URM_train, ICM_all, UCM_all)
 
             if isinstance(recommender_object, Incremental_Training_Early_Stopping):
                 fit_params = {"epochs": 15, **earlystopping_keywargs}
@@ -96,26 +94,33 @@ if __name__ == '__main__':
 
             recommender_object.fit(**fit_params)
 
-            results_run_1, results_run_string_1 = evaluator.evaluateRecommender(recommender_object)
+            results_run_1, results_run_string_1 = evaluator.evaluateRecommender(
+                recommender_object)
 
-            recommender_object.save_model(output_root_path, file_name = "temp_model.zip")
+            recommender_object.save_model(
+                output_root_path, file_name="temp_model.zip")
 
-            recommender_object = _get_instance(recommender_class, URM_train, ICM_all, UCM_all)
-            recommender_object.load_model(output_root_path, file_name = "temp_model.zip")
+            recommender_object = _get_instance(
+                recommender_class, URM_train, ICM_all, UCM_all)
+            recommender_object.load_model(
+                output_root_path, file_name="temp_model.zip")
 
             os.remove(output_root_path + "temp_model.zip")
 
-            results_run_2, results_run_string_2 = evaluator.evaluateRecommender(recommender_object)
+            results_run_2, results_run_string_2 = evaluator.evaluateRecommender(
+                recommender_object)
 
             if recommender_class not in [Random]:
                 assert results_run_1.equals(results_run_2)
 
-            print("Algorithm: {}, results: \n{}".format(recommender_class, results_run_string_1))
-            logFile.write("Algorithm: {}, results: \n{}\n".format(recommender_class, results_run_string_1))
+            print("Algorithm: {}, results: \n{}".format(
+                recommender_class, results_run_string_1))
+            logFile.write("Algorithm: {}, results: \n{}\n".format(
+                recommender_class, results_run_string_1))
             logFile.flush()
-
 
         except Exception as e:
             traceback.print_exc()
-            logFile.write("Algorithm: {} - Exception: {}\n".format(recommender_class, str(e)))
+            logFile.write(
+                "Algorithm: {} - Exception: {}\n".format(recommender_class, str(e)))
             logFile.flush()

@@ -6,13 +6,16 @@
 """
 
 
+import scipy.sparse as sps
 import numpy as np
 import unittest
+
 
 class _Metrics_Object(object):
     """
     Abstract class that should be used as superclass of all metrics requiring an object, therefore a state, to be computed
     """
+
     def __init__(self):
         pass
 
@@ -30,7 +33,7 @@ class _Metrics_Object(object):
 
 
 ####################################################################################################################
-###############                 ACCURACY METRICS
+# ACCURACY METRICS
 ####################################################################################################################
 
 
@@ -59,19 +62,18 @@ class MAP(_Metrics_Object):
         self.n_users += other_metric_object.n_users
 
 
-
 def average_precision(is_relevant):
 
     if len(is_relevant) == 0:
         a_p = 0.0
     else:
-        p_at_k = is_relevant * np.cumsum(is_relevant, dtype=np.float64) / (1 + np.arange(is_relevant.shape[0]))
+        p_at_k = is_relevant * \
+            np.cumsum(is_relevant, dtype=np.float64) / \
+            (1 + np.arange(is_relevant.shape[0]))
         a_p = np.sum(p_at_k) / is_relevant.shape[0]
 
     assert 0 <= a_p <= 1, a_p
     return a_p
-
-
 
 
 class MAP_MIN_DEN(_Metrics_Object):
@@ -87,7 +89,8 @@ class MAP_MIN_DEN(_Metrics_Object):
         self.n_users = 0
 
     def add_recommendations(self, is_relevant, pos_items):
-        self.cumulative_AP += average_precision_min_denominator(is_relevant, pos_items)
+        self.cumulative_AP += average_precision_min_denominator(
+            is_relevant, pos_items)
         self.n_users += 1
 
     def get_metric_value(self):
@@ -100,18 +103,19 @@ class MAP_MIN_DEN(_Metrics_Object):
         self.n_users += other_metric_object.n_users
 
 
-
 def average_precision_min_denominator(is_relevant, pos_items):
 
     if len(is_relevant) == 0:
         a_p = 0.0
     else:
-        p_at_k = is_relevant * np.cumsum(is_relevant, dtype=np.float64) / (1 + np.arange(is_relevant.shape[0]))
-        a_p = np.sum(p_at_k) / np.min([pos_items.shape[0], is_relevant.shape[0]])
+        p_at_k = is_relevant * \
+            np.cumsum(is_relevant, dtype=np.float64) / \
+            (1 + np.arange(is_relevant.shape[0]))
+        a_p = np.sum(p_at_k) / \
+            np.min([pos_items.shape[0], is_relevant.shape[0]])
 
     assert 0 <= a_p <= 1, a_p
     return a_p
-
 
 
 class MRR(_Metrics_Object):
@@ -140,7 +144,6 @@ class MRR(_Metrics_Object):
         self.n_users += other_metric_object.n_users
 
 
-
 def rr(is_relevant):
     """
     Reciprocal rank of the FIRST relevant item in the ranked list (0 if none)
@@ -154,9 +157,6 @@ def rr(is_relevant):
         return 1. / ranks[0]
     else:
         return 0.0
-
-
-
 
 
 class HIT_RATE(_Metrics_Object):
@@ -193,8 +193,6 @@ class HIT_RATE(_Metrics_Object):
         self.n_users += other_metric_object.n_users
 
 
-
-
 def arhr_all_hits(is_relevant):
     # average reciprocal hit-rank (ARHR) of all relevant items
     # As opposed to MRR, ARHR takes into account all relevant items and not just the first
@@ -202,7 +200,7 @@ def arhr_all_hits(is_relevant):
     # http://glaros.dtc.umn.edu/gkhome/fetch/papers/itemrsTOIS04.pdf
     # https://emunix.emich.edu/~sverdlik/COSC562/ItemBasedTopTen.pdf
 
-    p_reciprocal = 1/np.arange(1,len(is_relevant)+1, 1.0, dtype=np.float64)
+    p_reciprocal = 1/np.arange(1, len(is_relevant)+1, 1.0, dtype=np.float64)
     arhr_score = is_relevant.dot(p_reciprocal)
 
     assert not np.isnan(arhr_score), "ARHR_all_hits is NaN"
@@ -214,7 +212,8 @@ def precision(is_relevant):
     if len(is_relevant) == 0:
         precision_score = 0.0
     else:
-        precision_score = np.sum(is_relevant, dtype=np.float64) / len(is_relevant)
+        precision_score = np.sum(
+            is_relevant, dtype=np.float64) / len(is_relevant)
 
     assert 0 <= precision_score <= 1, precision_score
     return precision_score
@@ -225,11 +224,11 @@ def precision_recall_min_denominator(is_relevant, n_test_items):
     if len(is_relevant) == 0:
         precision_score = 0.0
     else:
-        precision_score = np.sum(is_relevant, dtype=np.float64) / min(n_test_items, len(is_relevant))
+        precision_score = np.sum(
+            is_relevant, dtype=np.float64) / min(n_test_items, len(is_relevant))
 
     assert 0 <= precision_score <= 1, precision_score
     return precision_score
-
 
 
 def recall(is_relevant, pos_items):
@@ -238,8 +237,6 @@ def recall(is_relevant, pos_items):
 
     assert 0 <= recall_score <= 1, recall_score
     return recall_score
-
-
 
 
 def ndcg(ranked_list, pos_items, relevance=None, at=None):
@@ -253,7 +250,8 @@ def ndcg(ranked_list, pos_items, relevance=None, at=None):
     it2rel = {it: r for it, r in zip(pos_items, relevance)}
 
     # Creates array of length "at" with the relevance associated to the item in that position
-    rank_scores = np.asarray([it2rel.get(it, 0.0) for it in ranked_list[:at]], dtype=np.float64)
+    rank_scores = np.asarray([it2rel.get(it, 0.0)
+                             for it in ranked_list[:at]], dtype=np.float64)
 
     # DCG uses the relevance of the recommended items
     rank_dcg = dcg(rank_scores)
@@ -278,7 +276,7 @@ def dcg(scores):
 
 
 ####################################################################################################################
-###############                 BEYOND-ACCURACY METRICS
+# BEYOND-ACCURACY METRICS
 ####################################################################################################################
 
 
@@ -287,12 +285,12 @@ class _Global_Item_Distribution_Counter(_Metrics_Object):
     This abstract class implements the basic functions to calculate the global distribution of items
     recommended by the algorithm and is used by various diversity metrics
     """
+
     def __init__(self, n_items, ignore_items):
         super(_Global_Item_Distribution_Counter, self).__init__()
 
         self.recommended_counter = np.zeros(n_items, dtype=np.float)
         self.ignore_items = ignore_items.astype(np.int).copy()
-
 
     def add_recommendations(self, recommended_items_ids):
         if len(recommended_items_ids) > 0:
@@ -302,23 +300,22 @@ class _Global_Item_Distribution_Counter(_Metrics_Object):
 
         recommended_counter = self.recommended_counter.copy()
 
-        recommended_counter_mask = np.ones_like(recommended_counter, dtype = np.bool)
+        recommended_counter_mask = np.ones_like(
+            recommended_counter, dtype=np.bool)
         recommended_counter_mask[self.ignore_items] = False
 
         recommended_counter = recommended_counter[recommended_counter_mask]
 
         return recommended_counter
 
-
     def merge_with_other(self, other_metric_object):
-        assert isinstance(other_metric_object, self.__class__), "{}: attempting to merge with a metric object of different type".format(self.__class__)
+        assert isinstance(
+            other_metric_object, self.__class__), "{}: attempting to merge with a metric object of different type".format(self.__class__)
 
         self.recommended_counter += other_metric_object.recommended_counter
 
     def get_metric_value(self):
         raise NotImplementedError()
-
-
 
 
 class Coverage_Item(_Global_Item_Distribution_Counter):
@@ -328,15 +325,13 @@ class Coverage_Item(_Global_Item_Distribution_Counter):
     """
 
     def __init__(self, n_items, ignore_items):
-        super(Coverage_Item, self).__init__( n_items, ignore_items)
+        super(Coverage_Item, self).__init__(n_items, ignore_items)
 
     def get_metric_value(self):
 
         recommended_mask = self._get_recommended_items_counter() > 0
 
         return recommended_mask.sum()/len(recommended_mask)
-
-
 
 
 class Coverage_Item_HIT(_Global_Item_Distribution_Counter):
@@ -349,15 +344,14 @@ class Coverage_Item_HIT(_Global_Item_Distribution_Counter):
         super(Coverage_Item_HIT, self).__init__(n_items, ignore_items)
 
     def add_recommendations(self, recommended_items_ids, is_relevant):
-        super(Coverage_Item_HIT, self).add_recommendations(np.array(recommended_items_ids)[is_relevant])
+        super(Coverage_Item_HIT, self).add_recommendations(
+            np.array(recommended_items_ids)[is_relevant])
 
     def get_metric_value(self):
 
         recommended_mask = self._get_recommended_items_counter() > 0
 
         return recommended_mask.sum()/len(recommended_mask)
-
-
 
 
 class Items_In_GT(_Metrics_Object):
@@ -370,7 +364,8 @@ class Items_In_GT(_Metrics_Object):
 
         URM_test.eliminate_zeros()
 
-        self.interaction_in_GT_counter = np.ediff1d(sps.csc_matrix(URM_test).indptr)
+        self.interaction_in_GT_counter = np.ediff1d(
+            sps.csc_matrix(URM_test).indptr)
         self.ignore_items = ignore_items.astype(np.int).copy()
 
     def add_recommendations(self, recommended_items_ids):
@@ -384,7 +379,6 @@ class Items_In_GT(_Metrics_Object):
         return in_GT_mask.sum()/(len(in_GT_mask) - len(self.ignore_items))
 
 
-
 class Users_In_GT(_Metrics_Object):
     """
     Users_In_GT represents the percentage of the overall users that have at least an interaction in the GT
@@ -395,7 +389,8 @@ class Users_In_GT(_Metrics_Object):
 
         URM_test.eliminate_zeros()
 
-        self.interaction_in_GT_counter = np.ediff1d(sps.csr_matrix(URM_test).indptr)
+        self.interaction_in_GT_counter = np.ediff1d(
+            sps.csr_matrix(URM_test).indptr)
         self.ignore_users = ignore_users.astype(np.int).copy()
 
     def add_recommendations(self, recommended_items_ids):
@@ -407,8 +402,6 @@ class Users_In_GT(_Metrics_Object):
         in_GT_mask[self.ignore_users] = False
 
         return in_GT_mask.sum()/(len(in_GT_mask) - len(self.ignore_users))
-
-
 
 
 class Coverage_User(_Metrics_Object):
@@ -429,7 +422,7 @@ class Coverage_User(_Metrics_Object):
         self.n_ignore_users = len(ignore_users)
 
     def add_recommendations(self, recommended_items_ids, user_id):
-        self.users_mask[user_id] = len(recommended_items_ids)>0
+        self.users_mask[user_id] = len(recommended_items_ids) > 0
 
     def get_metric_value(self):
         return self.users_mask.sum()/(len(self.users_mask)-self.n_ignore_users)
@@ -437,8 +430,8 @@ class Coverage_User(_Metrics_Object):
     def merge_with_other(self, other_metric_object):
         assert other_metric_object is Coverage_User, "Coverage_User: attempting to merge with a metric object of different type"
 
-        self.users_mask = np.logical_or(self.users_mask, other_metric_object.users_mask)
-
+        self.users_mask = np.logical_or(
+            self.users_mask, other_metric_object.users_mask)
 
 
 class Coverage_User_HIT(_Metrics_Object):
@@ -466,9 +459,8 @@ class Coverage_User_HIT(_Metrics_Object):
     def merge_with_other(self, other_metric_object):
         assert other_metric_object is Coverage_User, "Coverage_User_HIT: attempting to merge with a metric object of different type"
 
-        self.users_mask = np.logical_or(self.users_mask, other_metric_object.users_mask)
-
-
+        self.users_mask = np.logical_or(
+            self.users_mask, other_metric_object.users_mask)
 
 
 class Gini_Diversity(_Global_Item_Distribution_Counter):
@@ -494,8 +486,6 @@ class Gini_Diversity(_Global_Item_Distribution_Counter):
         return gini_diversity
 
 
-
-
 def _compute_diversity_gini(recommended_counter):
     """
     The function computes the gini diversity of the given recommended item distribution.
@@ -506,15 +496,16 @@ def _compute_diversity_gini(recommended_counter):
 
     n_items = len(recommended_counter)
 
-    recommended_counter_sorted = np.sort(recommended_counter)       # values must be sorted
-    index = np.arange(1, n_items+1)                                 # index per array element
+    recommended_counter_sorted = np.sort(
+        recommended_counter)       # values must be sorted
+    # index per array element
+    index = np.arange(1, n_items+1)
 
     #gini_index = (np.sum((2 * index - n_items  - 1) * recommended_counter_sorted)) / (n_items * np.sum(recommended_counter_sorted))
-    gini_diversity = 2*np.sum((n_items + 1 - index)/(n_items+1) * recommended_counter_sorted/np.sum(recommended_counter_sorted))
+    gini_diversity = 2*np.sum((n_items + 1 - index)/(n_items+1) *
+                              recommended_counter_sorted/np.sum(recommended_counter_sorted))
 
     return gini_diversity
-
-
 
 
 class Diversity_Herfindahl(_Global_Item_Distribution_Counter):
@@ -541,18 +532,15 @@ class Diversity_Herfindahl(_Global_Item_Distribution_Counter):
         return herfindahl_index
 
 
-
 def _compute_diversity_herfindahl(recommended_counter):
 
     if recommended_counter.sum() != 0:
-        herfindahl_index = 1 - np.sum((recommended_counter / recommended_counter.sum()) ** 2)
+        herfindahl_index = 1 - \
+            np.sum((recommended_counter / recommended_counter.sum()) ** 2)
     else:
         herfindahl_index = np.nan
 
     return herfindahl_index
-
-
-
 
 
 class Shannon_Entropy(_Global_Item_Distribution_Counter):
@@ -560,7 +548,7 @@ class Shannon_Entropy(_Global_Item_Distribution_Counter):
     Shannon Entropy is a well known metric to measure the amount of information of a certain string of data.
     Here is applied to the global number of times an item has been recommended.
 
-    It has a lower bound and can reach values over 12.0 for random recommenders.
+    It has a lower bound and can reach values over 12.0 for random src.Recommenders.
     A high entropy means that the distribution is random uniform across all users.
 
     Note that while a random uniform distribution
@@ -582,14 +570,11 @@ class Shannon_Entropy(_Global_Item_Distribution_Counter):
         return shannon_entropy
 
 
-
-
-
 def _compute_shannon_entropy(recommended_counter):
 
     # Ignore from the computation both ignored items and items with zero occurrence.
     # Zero occurrence items will have zero probability and will not change the result, butt will generate nans if used in the log
-    recommended_counter_mask = np.ones_like(recommended_counter, dtype = np.bool)
+    recommended_counter_mask = np.ones_like(recommended_counter, dtype=np.bool)
     recommended_counter_mask[recommended_counter == 0] = False
 
     recommended_counter = recommended_counter[recommended_counter_mask]
@@ -598,14 +583,10 @@ def _compute_shannon_entropy(recommended_counter):
 
     recommended_probability = recommended_counter/n_recommendations
 
-    shannon_entropy = -np.sum(recommended_probability * np.log2(recommended_probability))
+    shannon_entropy = -np.sum(recommended_probability *
+                              np.log2(recommended_probability))
 
     return shannon_entropy
-
-
-
-
-
 
 
 class Ratio_Shannon_Entropy(_Global_Item_Distribution_Counter):
@@ -613,18 +594,21 @@ class Ratio_Shannon_Entropy(_Global_Item_Distribution_Counter):
     def __init__(self, URM_train, ignore_items):
 
         n_items = URM_train.shape[1]
-        self.recommended_counter_train = np.ediff1d(sps.csc_matrix(URM_train).indptr)
+        self.recommended_counter_train = np.ediff1d(
+            sps.csc_matrix(URM_train).indptr)
         super(Ratio_Shannon_Entropy, self).__init__(n_items, ignore_items)
 
     def get_metric_value(self):
 
         recommended_counter = self._get_recommended_items_counter()
-        shannon_entropy_recommendations = _compute_shannon_entropy(recommended_counter)
+        shannon_entropy_recommendations = _compute_shannon_entropy(
+            recommended_counter)
         recommended_counter_recommendations = self.recommended_counter.copy()
 
         self.recommended_counter = self.recommended_counter_train.copy()
         recommended_counter_train = self._get_recommended_items_counter()
-        shannon_entropy_train = _compute_shannon_entropy(recommended_counter_train)
+        shannon_entropy_train = _compute_shannon_entropy(
+            recommended_counter_train)
 
         self.recommended_counter = recommended_counter_recommendations
 
@@ -633,24 +617,26 @@ class Ratio_Shannon_Entropy(_Global_Item_Distribution_Counter):
         return ratio_value
 
 
-
 class Ratio_Diversity_Herfindahl(_Global_Item_Distribution_Counter):
 
     def __init__(self, URM_train, ignore_items):
 
         n_items = URM_train.shape[1]
-        self.recommended_counter_train = np.ediff1d(sps.csc_matrix(URM_train).indptr)
+        self.recommended_counter_train = np.ediff1d(
+            sps.csc_matrix(URM_train).indptr)
         super(Ratio_Diversity_Herfindahl, self).__init__(n_items, ignore_items)
 
     def get_metric_value(self):
 
         recommended_counter = self._get_recommended_items_counter()
-        diversity_herfindahl_recommendations = _compute_diversity_herfindahl(recommended_counter)
+        diversity_herfindahl_recommendations = _compute_diversity_herfindahl(
+            recommended_counter)
         recommended_counter_recommendations = self.recommended_counter.copy()
 
         self.recommended_counter = self.recommended_counter_train.copy()
         recommended_counter_train = self._get_recommended_items_counter()
-        diversity_herfindahl_train = _compute_diversity_herfindahl(recommended_counter_train)
+        diversity_herfindahl_train = _compute_diversity_herfindahl(
+            recommended_counter_train)
 
         self.recommended_counter = recommended_counter_recommendations
 
@@ -659,35 +645,32 @@ class Ratio_Diversity_Herfindahl(_Global_Item_Distribution_Counter):
         return ratio_value
 
 
-
 class Ratio_Diversity_Gini(_Global_Item_Distribution_Counter):
 
     def __init__(self, URM_train, ignore_items):
 
         n_items = URM_train.shape[1]
-        self.recommended_counter_train = np.ediff1d(sps.csc_matrix(URM_train).indptr)
+        self.recommended_counter_train = np.ediff1d(
+            sps.csc_matrix(URM_train).indptr)
         super(Ratio_Diversity_Gini, self).__init__(n_items, ignore_items)
 
     def get_metric_value(self):
 
         recommended_counter = self._get_recommended_items_counter()
-        diversity_gini_recommendations = _compute_diversity_gini(recommended_counter)
+        diversity_gini_recommendations = _compute_diversity_gini(
+            recommended_counter)
         recommended_counter_recommendations = self.recommended_counter.copy()
 
         self.recommended_counter = self.recommended_counter_train.copy()
         recommended_counter_train = self._get_recommended_items_counter()
-        diversity_gini_train = _compute_diversity_gini(recommended_counter_train)
+        diversity_gini_train = _compute_diversity_gini(
+            recommended_counter_train)
 
         self.recommended_counter = recommended_counter_recommendations
 
         ratio_value = diversity_gini_recommendations/diversity_gini_train
 
         return ratio_value
-
-
-
-import scipy.sparse as sps
-
 
 
 class Novelty(_Metrics_Object):
@@ -714,19 +697,17 @@ class Novelty(_Metrics_Object):
         self.n_items = len(self.item_popularity)
         self.n_interactions = self.item_popularity.sum()
 
-
     def add_recommendations(self, recommended_items_ids):
 
         self.n_evaluated_users += 1
 
-        if len(recommended_items_ids)>0:
+        if len(recommended_items_ids) > 0:
             recommended_items_popularity = self.item_popularity[recommended_items_ids]
 
             probability = recommended_items_popularity/self.n_interactions
-            probability = probability[probability!=0]
+            probability = probability[probability != 0]
 
             self.novelty += np.sum(-np.log2(probability)/self.n_items)
-
 
     def get_metric_value(self):
 
@@ -739,11 +720,8 @@ class Novelty(_Metrics_Object):
         assert other_metric_object is Novelty, "Novelty: attempting to merge with a metric object of different type"
 
         self.novelty = self.novelty + other_metric_object.novelty
-        self.n_evaluated_users = self.n_evaluated_users + other_metric_object.n_evaluated_users
-
-
-
-
+        self.n_evaluated_users = self.n_evaluated_users + \
+            other_metric_object.n_evaluated_users
 
 
 class Ratio_Novelty(_Metrics_Object):
@@ -760,14 +738,14 @@ class Ratio_Novelty(_Metrics_Object):
             start_pos = URM_train.indptr[user_id]
             end_pos = URM_train.indptr[user_id+1]
 
-            novelty_object_train.add_recommendations(URM_train.indices[start_pos:end_pos])
+            novelty_object_train.add_recommendations(
+                URM_train.indices[start_pos:end_pos])
 
         self.novelty_train = novelty_object_train.get_metric_value()
 
-
     def add_recommendations(self, recommended_items_ids):
-        self.novelty_object_recommendations.add_recommendations(recommended_items_ids)
-
+        self.novelty_object_recommendations.add_recommendations(
+            recommended_items_ids)
 
     def get_metric_value(self):
 
@@ -777,12 +755,11 @@ class Ratio_Novelty(_Metrics_Object):
 
         return ratio_value
 
-
     def merge_with_other(self, other_metric_object):
         assert other_metric_object is Ratio_Novelty, "Ratio_Novelty: attempting to merge with a metric object of different type"
 
-        self.novelty_object_recommendations.merge_with_other(other_metric_object.novelty_object_recommendations)
-
+        self.novelty_object_recommendations.merge_with_other(
+            other_metric_object.novelty_object_recommendations)
 
 
 class AveragePopularity(_Metrics_Object):
@@ -798,7 +775,6 @@ class AveragePopularity(_Metrics_Object):
         URM_train.eliminate_zeros()
         item_popularity = np.ediff1d(URM_train.indptr)
 
-
         self.cumulative_popularity = 0.0
         self.n_evaluated_users = 0
         self.n_items = URM_train.shape[0]
@@ -806,16 +782,15 @@ class AveragePopularity(_Metrics_Object):
 
         self.item_popularity_normalized = item_popularity/item_popularity.max()
 
-
     def add_recommendations(self, recommended_items_ids):
 
         self.n_evaluated_users += 1
 
-        if len(recommended_items_ids)>0:
+        if len(recommended_items_ids) > 0:
             recommended_items_popularity = self.item_popularity_normalized[recommended_items_ids]
 
-            self.cumulative_popularity += np.sum(recommended_items_popularity)/len(recommended_items_ids)
-
+            self.cumulative_popularity += np.sum(
+                recommended_items_popularity)/len(recommended_items_ids)
 
     def get_metric_value(self):
 
@@ -827,11 +802,10 @@ class AveragePopularity(_Metrics_Object):
     def merge_with_other(self, other_metric_object):
         assert other_metric_object is Novelty, "AveragePopularity: attempting to merge with a metric object of different type"
 
-        self.cumulative_popularity = self.cumulative_popularity + other_metric_object.cumulative_popularity
-        self.n_evaluated_users = self.n_evaluated_users + other_metric_object.n_evaluated_users
-
-
-
+        self.cumulative_popularity = self.cumulative_popularity + \
+            other_metric_object.cumulative_popularity
+        self.n_evaluated_users = self.n_evaluated_users + \
+            other_metric_object.n_evaluated_users
 
 
 class Ratio_AveragePopularity(_Metrics_Object):
@@ -848,14 +822,14 @@ class Ratio_AveragePopularity(_Metrics_Object):
             start_pos = URM_train.indptr[user_id]
             end_pos = URM_train.indptr[user_id+1]
 
-            average_popularity_object_train.add_recommendations(URM_train.indices[start_pos:end_pos])
+            average_popularity_object_train.add_recommendations(
+                URM_train.indices[start_pos:end_pos])
 
         self.average_popularity_train = average_popularity_object_train.get_metric_value()
 
-
     def add_recommendations(self, recommended_items_ids):
-        self.average_popularity_recommendations.add_recommendations(recommended_items_ids)
-
+        self.average_popularity_recommendations.add_recommendations(
+            recommended_items_ids)
 
     def get_metric_value(self):
 
@@ -865,13 +839,11 @@ class Ratio_AveragePopularity(_Metrics_Object):
 
         return ratio_value
 
-
     def merge_with_other(self, other_metric_object):
         assert other_metric_object is Ratio_AveragePopularity, "Ratio_AveragePopularity: attempting to merge with a metric object of different type"
 
-        self.average_popularity_recommendations.merge_with_other(other_metric_object.novelty_object_recommendations)
-
-
+        self.average_popularity_recommendations.merge_with_other(
+            other_metric_object.novelty_object_recommendations)
 
 
 class Diversity_similarity(_Metrics_Object):
@@ -896,7 +868,6 @@ class Diversity_similarity(_Metrics_Object):
         self.n_evaluated_users = 0
         self.diversity = 0.0
 
-
     def add_recommendations(self, recommended_items_ids):
 
         current_recommended_items_diversity = 0.0
@@ -905,16 +876,16 @@ class Diversity_similarity(_Metrics_Object):
 
             item_id = recommended_items_ids[item_index]
 
-            item_other_diversity = self.item_diversity_matrix[item_id, recommended_items_ids]
+            item_other_diversity = self.item_diversity_matrix[item_id,
+                                                              recommended_items_ids]
             item_other_diversity[item_index] = 0.0
 
             current_recommended_items_diversity += np.sum(item_other_diversity)
 
-
-        self.diversity += current_recommended_items_diversity/(len(recommended_items_ids)*(len(recommended_items_ids)-1))
+        self.diversity += current_recommended_items_diversity / \
+            (len(recommended_items_ids)*(len(recommended_items_ids)-1))
 
         self.n_evaluated_users += 1
-
 
     def get_metric_value(self):
 
@@ -927,10 +898,8 @@ class Diversity_similarity(_Metrics_Object):
         assert other_metric_object is Diversity_similarity, "Diversity: attempting to merge with a metric object of different type"
 
         self.diversity = self.diversity + other_metric_object.diversity
-        self.n_evaluated_users = self.n_evaluated_users + other_metric_object.n_evaluated_users
-
-
-
+        self.n_evaluated_users = self.n_evaluated_users + \
+            other_metric_object.n_evaluated_users
 
 
 class Diversity_MeanInterList(_Metrics_Object):
@@ -1006,18 +975,15 @@ class Diversity_MeanInterList(_Metrics_Object):
         self.diversity = 0.0
         self.cutoff = cutoff
 
-
     def add_recommendations(self, recommended_items_ids):
 
-        assert len(recommended_items_ids) <= self.cutoff, "Diversity_MeanInterList: recommended list is contains more elements than cutoff"
+        assert len(
+            recommended_items_ids) <= self.cutoff, "Diversity_MeanInterList: recommended list is contains more elements than cutoff"
 
         self.n_evaluated_users += 1
 
         if len(recommended_items_ids) > 0:
             self.recommended_counter[recommended_items_ids] += 1
-
-
-
 
     def get_metric_value(self):
 
@@ -1025,23 +991,26 @@ class Diversity_MeanInterList(_Metrics_Object):
         if self.n_evaluated_users == 0:
             return 1.0
 
-        cooccurrences_cumulative = np.sum(self.recommended_counter**2) - self.n_evaluated_users*self.cutoff
+        cooccurrences_cumulative = np.sum(
+            self.recommended_counter**2) - self.n_evaluated_users*self.cutoff
 
         # All user combinations except diagonal
         all_user_couples_count = self.n_evaluated_users**2 - self.n_evaluated_users
 
-        diversity_cumulative = all_user_couples_count - cooccurrences_cumulative/self.cutoff
+        diversity_cumulative = all_user_couples_count - \
+            cooccurrences_cumulative/self.cutoff
 
         self.diversity = diversity_cumulative/all_user_couples_count
 
         return self.diversity
 
-
     def get_theoretical_max(self):
 
-        global_co_occurrence_count = (self.n_evaluated_users*self.cutoff)**2/self.n_items - self.n_evaluated_users*self.cutoff
+        global_co_occurrence_count = (
+            self.n_evaluated_users*self.cutoff)**2/self.n_items - self.n_evaluated_users*self.cutoff
 
-        mild = 1 - 1/(self.n_evaluated_users**2 - self.n_evaluated_users)*(global_co_occurrence_count/self.cutoff)
+        mild = 1 - 1/(self.n_evaluated_users**2 - self.n_evaluated_users) * \
+            (global_co_occurrence_count/self.cutoff)
 
         return mild
 
@@ -1049,18 +1018,18 @@ class Diversity_MeanInterList(_Metrics_Object):
 
         assert other_metric_object is Diversity_MeanInterList, "Diversity_MeanInterList: attempting to merge with a metric object of different type"
 
-        assert np.all(self.recommended_counter >= 0.0), "Diversity_MeanInterList: self.recommended_counter contains negative counts"
-        assert np.all(other_metric_object.recommended_counter >= 0.0), "Diversity_MeanInterList: other.recommended_counter contains negative counts"
+        assert np.all(self.recommended_counter >=
+                      0.0), "Diversity_MeanInterList: self.recommended_counter contains negative counts"
+        assert np.all(other_metric_object.recommended_counter >=
+                      0.0), "Diversity_MeanInterList: other.recommended_counter contains negative counts"
 
         self.recommended_counter += other_metric_object.recommended_counter
         self.n_evaluated_users += other_metric_object.n_evaluated_users
 
 
-
 ####################################################################################################################
-###############                 TESTS
+# TESTS
 ####################################################################################################################
-
 metrics = ['AUC', 'Precision' 'Recall', 'MAP', 'NDCG']
 
 
@@ -1099,7 +1068,8 @@ class TestRecall(unittest.TestCase):
         thresholds = [1, 2, 3, 4, 5]
         values = [0.0, 1. / 4, 1. / 4, 2. / 4, 3. / 4]
         for at, val in zip(thresholds, values):
-            self.assertTrue(np.allclose(np.asarray(recall(ranked_list_1, pos_items, at=at)), val))
+            self.assertTrue(np.allclose(np.asarray(
+                recall(ranked_list_1, pos_items, at=at)), val))
 
 
 class TestPrecision(unittest.TestCase):
@@ -1108,14 +1078,17 @@ class TestPrecision(unittest.TestCase):
         ranked_list_1 = np.asarray([1, 2, 3, 4, 5])
         ranked_list_2 = np.asarray([10, 5, 2, 4, 3])
         ranked_list_3 = np.asarray([1, 3, 6, 7, 8])
-        self.assertTrue(np.allclose(precision(ranked_list_1, pos_items), 3. / 5))
-        self.assertTrue(np.allclose(precision(ranked_list_2, pos_items), 4. / 5))
+        self.assertTrue(np.allclose(
+            precision(ranked_list_1, pos_items), 3. / 5))
+        self.assertTrue(np.allclose(
+            precision(ranked_list_2, pos_items), 4. / 5))
         self.assertTrue(np.allclose(precision(ranked_list_3, pos_items), 0.0))
 
         thresholds = [1, 2, 3, 4, 5]
         values = [0.0, 1. / 2, 1. / 3, 2. / 4, 3. / 5]
         for at, val in zip(thresholds, values):
-            self.assertTrue(np.allclose(np.asarray(precision(ranked_list_1, pos_items, at=at)), val))
+            self.assertTrue(np.allclose(np.asarray(
+                precision(ranked_list_1, pos_items, at=at)), val))
 
 
 class TestRR(unittest.TestCase):
@@ -1131,7 +1104,8 @@ class TestRR(unittest.TestCase):
         thresholds = [1, 2, 3, 4, 5]
         values = [0.0, 1. / 2, 1. / 2, 1. / 2, 1. / 2]
         for at, val in zip(thresholds, values):
-            self.assertTrue(np.allclose(np.asarray(rr(ranked_list_1, pos_items, at=at)), val))
+            self.assertTrue(np.allclose(np.asarray(
+                rr(ranked_list_1, pos_items, at=at)), val))
 
 
 class TestMAP(unittest.TestCase):
@@ -1142,11 +1116,14 @@ class TestMAP(unittest.TestCase):
         ranked_list_3 = np.asarray([1, 3, 6, 7, 8])
         ranked_list_4 = np.asarray([11, 12, 13, 14, 15, 16, 2, 4, 5, 10])
         ranked_list_5 = np.asarray([2, 11, 12, 13, 14, 15, 4, 5, 10, 16])
-        self.assertTrue(np.allclose(map(ranked_list_1, pos_items), (1. / 2 + 2. / 4 + 3. / 5) / 4))
+        self.assertTrue(np.allclose(
+            map(ranked_list_1, pos_items), (1. / 2 + 2. / 4 + 3. / 5) / 4))
         self.assertTrue(np.allclose(map(ranked_list_2, pos_items), 1.0))
         self.assertTrue(np.allclose(map(ranked_list_3, pos_items), 0.0))
-        self.assertTrue(np.allclose(map(ranked_list_4, pos_items), (1. / 7 + 2. / 8 + 3. / 9 + 4. / 10) / 4))
-        self.assertTrue(np.allclose(map(ranked_list_5, pos_items), (1. + 2. / 7 + 3. / 8 + 4. / 9) / 4))
+        self.assertTrue(np.allclose(map(ranked_list_4, pos_items),
+                        (1. / 7 + 2. / 8 + 3. / 9 + 4. / 10) / 4))
+        self.assertTrue(np.allclose(map(ranked_list_5, pos_items),
+                        (1. + 2. / 7 + 3. / 8 + 4. / 9) / 4))
 
         thresholds = [1, 2, 3, 4, 5]
         values = [
@@ -1157,7 +1134,8 @@ class TestMAP(unittest.TestCase):
             (1. / 2 + 2. / 4 + 3. / 5) / 4
         ]
         for at, val in zip(thresholds, values):
-            self.assertTrue(np.allclose(np.asarray(map(ranked_list_1, pos_items, at)), val))
+            self.assertTrue(np.allclose(np.asarray(
+                map(ranked_list_1, pos_items, at)), val))
 
 
 class TestNDCG(unittest.TestCase):
@@ -1181,7 +1159,8 @@ class TestNDCG(unittest.TestCase):
                                      (2 ** 3 - 1) / np.log(3) +
                                      (2 ** 5 - 1) / np.log(4) +
                                      (2 ** 4 - 1) / np.log(5)) / idcg))
-        self.assertTrue(np.allclose(ndcg(ranked_list_3, pos_items, pos_relevances), 0.0))
+        self.assertTrue(np.allclose(
+            ndcg(ranked_list_3, pos_items, pos_relevances), 0.0))
 
 
 if __name__ == '__main__':

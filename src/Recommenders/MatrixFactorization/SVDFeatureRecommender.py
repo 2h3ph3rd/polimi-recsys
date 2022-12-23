@@ -5,12 +5,14 @@ Created on 18/02/2019
 
 """
 
-import subprocess, os, shutil
+import subprocess
+import os
+import shutil
 import numpy as np
 from tqdm import tqdm
 
-from Recommenders.BaseRecommender import BaseRecommender
-from Recommenders.Recommender_utils import check_matrix
+from src.Recommenders.BaseRecommender import BaseRecommender
+from src.Recommenders.Recommender_utils import check_matrix
 
 
 class SVDFeature(BaseRecommender):
@@ -20,7 +22,6 @@ class SVDFeature(BaseRecommender):
     FILE_TEST_NAME = "svd_feature_test"
     FILE_PREDICTION_NAME = "svd_feature_predicted"
     DEFAULT_TEMP_FILE_FOLDER = './result_experiments/__Temp_SVDFeature/'
-
 
     def __init__(self, URM_train, ICM=None, UCM=None):
 
@@ -32,32 +33,32 @@ class SVDFeature(BaseRecommender):
         self.n_users, self.n_items = URM_train.shape
         self.normalize = False
 
-
     def __dealloc__(self):
 
         if self.temp_file_folder == self.DEFAULT_TEMP_FILE_FOLDER:
             print("{}: cleaning temporary files".format(self.RECOMMENDER_NAME))
             shutil.rmtree(self.DEFAULT_TEMP_FILE_FOLDER, ignore_errors=True)
 
-
-
     def _compute_item_score(self, user_id_array, items_to_compute=None):
 
         if items_to_compute is None:
             items_to_compute = np.arange(self.n_items)
 
-        item_scores = - np.ones((len(user_id_array), self.URM_train.shape[1]), dtype=np.float32)*np.inf
-
+        item_scores = - \
+            np.ones(
+                (len(user_id_array), self.URM_train.shape[1]), dtype=np.float32)*np.inf
 
         with open(self.temp_file_folder + self.FILE_TEST_NAME, "w") as fileout:
             for userid in user_id_array.tolist():
                 for itemid in items_to_compute.tolist():
-                    print(self._get_feature_format(userid, itemid), file=fileout)
+                    print(self._get_feature_format(
+                        userid, itemid), file=fileout)
 
         args = ["svd_feature_infer",
                 "pred=0",
                 "test:input_type=1",
-                "test:data_in={}".format(self.temp_file_folder + self.FILE_TEST_NAME),
+                "test:data_in={}".format(
+                    self.temp_file_folder + self.FILE_TEST_NAME),
                 "name_pred={}".format(self.temp_file_folder + self.FILE_PREDICTION_NAME)]
 
         subprocess.run(args)
@@ -70,7 +71,6 @@ class SVDFeature(BaseRecommender):
                     item_scores[userid, itemid] = float(filein.readline())
 
         return item_scores
-
 
     def _get_feature_format(self, userid, itemid):
 
@@ -104,7 +104,6 @@ class SVDFeature(BaseRecommender):
 
         return output
 
-
     def _write_feature_format_file(self):
 
         self.n_item_features = self.n_items
@@ -128,22 +127,21 @@ class SVDFeature(BaseRecommender):
 
                 print(output, file=fileout)
 
-
     def fit(self, epochs=30, num_factors=32, learning_rate=0.01,
             user_reg=0.0, item_reg=0.0, user_bias_reg=0.0, item_bias_reg=0.0,
-            temp_file_folder = None):
-
+            temp_file_folder=None):
 
         if temp_file_folder is None:
-            print("{}: Using default Temp folder '{}'".format(self.RECOMMENDER_NAME, self.DEFAULT_TEMP_FILE_FOLDER))
+            print("{}: Using default Temp folder '{}'".format(
+                self.RECOMMENDER_NAME, self.DEFAULT_TEMP_FILE_FOLDER))
             self.temp_file_folder = self.DEFAULT_TEMP_FILE_FOLDER
         else:
-            print("{}: Using Temp folder '{}'".format(self.RECOMMENDER_NAME, temp_file_folder))
+            print("{}: Using Temp folder '{}'".format(
+                self.RECOMMENDER_NAME, temp_file_folder))
             self.temp_file_folder = temp_file_folder
 
         if not os.path.isdir(self.temp_file_folder):
             os.makedirs(self.temp_file_folder)
-
 
         print("SVDFeature: Writing input file in feature format")
 
@@ -152,9 +150,10 @@ class SVDFeature(BaseRecommender):
         print("SVDFeature: Fit starting")
 
         args = ["svd_feature",
-                #"active_type=3",
+                # "active_type=3",
                 "input_type=1",
-                "data_in={}".format(self.temp_file_folder + self.FILE_MODEL_NAME),
+                "data_in={}".format(
+                    self.temp_file_folder + self.FILE_MODEL_NAME),
                 "model_out_folder={}".format(self.temp_file_folder),
                 "num_item={:d}".format(self.n_item_features),
                 "num_user={:d}".format(self.n_user_features),

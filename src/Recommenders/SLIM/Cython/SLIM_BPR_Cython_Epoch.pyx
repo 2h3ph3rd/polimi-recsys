@@ -31,8 +31,8 @@ ELSE:
 
 
 
-from Recommenders.Recommender_utils import similarityMatrixTopK, check_matrix
-from Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
+from src.Recommenders.Recommender_utils import similarityMatrixTopK, check_matrix
+from src.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 import numpy as np
 import cython
 cimport numpy as np

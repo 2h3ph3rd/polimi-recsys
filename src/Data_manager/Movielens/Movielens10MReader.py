@@ -7,12 +7,13 @@ Created on 14/09/17
 """
 
 
-import zipfile, shutil
+import zipfile
+import shutil
 import pandas as pd
-from Data_manager.DatasetMapperManager import DatasetMapperManager
-from Data_manager.DataReader import DataReader
-from Data_manager.DataReader_utils import download_from_URL
-from Data_manager.Movielens._utils_movielens_parser import _loadICM_tags, _loadICM_genres_years, _loadURM
+from src.Data_manager.DatasetMapperManager import DatasetMapperManager
+from src.Data_manager.DataReader import DataReader
+from src.Data_manager.DataReader_utils import download_from_URL
+from src.Data_manager.Movielens._utils_movielens_parser import _loadICM_tags, _loadICM_genres_years, _loadURM
 
 
 class Movielens10MReader(DataReader):
@@ -27,11 +28,10 @@ class Movielens10MReader(DataReader):
     def _get_dataset_name_root(self):
         return self.DATASET_SUBFOLDER
 
-
     def _load_from_original_file(self):
         # Load data from original
 
-        zipFile_path =  self.DATASET_SPLIT_ROOT_FOLDER + self.DATASET_SUBFOLDER
+        zipFile_path = self.DATASET_SPLIT_ROOT_FOLDER + self.DATASET_SUBFOLDER
 
         try:
 
@@ -45,22 +45,27 @@ class Movielens10MReader(DataReader):
 
             dataFile = zipfile.ZipFile(zipFile_path + "ml-10m.zip")
 
-
-        ICM_genre_path = dataFile.extract("ml-10M100K/movies.dat", path=zipFile_path + "decompressed/")
-        ICM_tags_path = dataFile.extract("ml-10M100K/tags.dat", path=zipFile_path + "decompressed/")
-        URM_path = dataFile.extract("ml-10M100K/ratings.dat", path=zipFile_path + "decompressed/")
-
+        ICM_genre_path = dataFile.extract(
+            "ml-10M100K/movies.dat", path=zipFile_path + "decompressed/")
+        ICM_tags_path = dataFile.extract(
+            "ml-10M100K/tags.dat", path=zipFile_path + "decompressed/")
+        URM_path = dataFile.extract(
+            "ml-10M100K/ratings.dat", path=zipFile_path + "decompressed/")
 
         self._print("Loading Item Features Genres")
-        ICM_genres_dataframe, ICM_years_dataframe = _loadICM_genres_years(ICM_genre_path, header=None, separator='::', genresSeparator="|")
+        ICM_genres_dataframe, ICM_years_dataframe = _loadICM_genres_years(
+            ICM_genre_path, header=None, separator='::', genresSeparator="|")
 
         self._print("Loading Item Features Tags")
-        ICM_tags_dataframe = _loadICM_tags(ICM_tags_path, header=None, separator='::')
+        ICM_tags_dataframe = _loadICM_tags(
+            ICM_tags_path, header=None, separator='::')
 
-        ICM_all_dataframe = pd.concat([ICM_genres_dataframe, ICM_tags_dataframe])
+        ICM_all_dataframe = pd.concat(
+            [ICM_genres_dataframe, ICM_tags_dataframe])
 
         self._print("Loading Interactions")
-        URM_all_dataframe, URM_timestamp_dataframe = _loadURM(URM_path, header=None, separator='::')
+        URM_all_dataframe, URM_timestamp_dataframe = _loadURM(
+            URM_path, header=None, separator='::')
 
         dataset_manager = DatasetMapperManager()
         dataset_manager.add_URM(URM_all_dataframe, "URM_all")
@@ -70,10 +75,8 @@ class Movielens10MReader(DataReader):
         dataset_manager.add_ICM(ICM_tags_dataframe, "ICM_tags")
         dataset_manager.add_ICM(ICM_all_dataframe, "ICM_all")
 
-
         loaded_dataset = dataset_manager.generate_Dataset(dataset_name=self._get_dataset_name(),
                                                           is_implicit=self.IS_IMPLICIT)
-
 
         self._print("Cleaning Temporary Files")
 
@@ -82,4 +85,3 @@ class Movielens10MReader(DataReader):
         self._print("Loading Complete")
 
         return loaded_dataset
-

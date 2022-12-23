@@ -2,6 +2,7 @@
 submission.csv
 data/*.csv
 data/*.npz
+result_experiments/*
 
 # https://github.com/github/gitignore/blob/main/Python.gitignore
 

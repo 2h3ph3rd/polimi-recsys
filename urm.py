@@ -53,8 +53,6 @@ def calculate_URM():
         URM = custom_impressions_weights(URM)
         utilities.save_sparse_matrix(URM, 'urm_custom_impressions_weights.npz')
 
-    utilities.save_sparse_matrix(URM, 'urm.npz')
-
 
 def custom_interactions_weights(item_id, user_interactions):
     weight = 0

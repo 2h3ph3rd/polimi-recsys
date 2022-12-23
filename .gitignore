@@ -1,8 +1,7 @@
 .ipynb_checkpoints
 submission.csv
-data/*.csv
-data/*.npz
-result_experiments/*
+data/*
+result_experiments
 
 # https://github.com/github/gitignore/blob/main/Python.gitignore
 

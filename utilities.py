@@ -9,7 +9,50 @@ import csv
 from src.Recommenders.Recommender_utils import check_matrix
 
 
-def save_recommendations(rec, users_df, user_original_id_to_mapped_id, item_mapped_id_to_original_id, num_users_to_recommend):
+def save_recommendations(rec):
+
+    # Paths to datasets
+    base_path = "data"
+    interactions_df_path = os.path.join(
+        base_path, "interactions_and_impressions.csv")
+    items_length_df_path = os.path.join(base_path, "data_ICM_length.csv")
+    items_type_df_path = os.path.join(base_path, "data_ICM_type.csv")
+    users_df_path = os.path.join(base_path, "data_target_users_test.csv")
+
+    # Read datasets
+    dtype = {0: int, 1: int, 2: str, 3: int}
+    interactions_df = pd.read_csv(
+        filepath_or_buffer=interactions_df_path,
+        dtype=dtype,
+        keep_default_na=False  # avoid NaN
+    )
+
+    items_types_df = pd.read_csv(
+        filepath_or_buffer=items_type_df_path, dtype=dtype)
+    users_df = pd.read_csv(filepath_or_buffer=users_df_path)
+
+    # Item IDs mapping
+    items_ids = items_types_df["item_id"].unique()
+    items_ids = np.append(items_ids, interactions_df["item_id"].unique())
+    items_ids = np.unique(items_ids)
+
+    items_mapped_ids, items_original_ids = pd.factorize(items_ids)
+
+    item_mapped_id_to_original_id = pd.Series(
+        items_original_ids,
+        index=items_mapped_ids
+    )
+
+    # User IDs mapping
+    users_ids = interactions_df["user_id"].sort_values().unique()
+    users_mapped_ids, users_original_ids = pd.factorize(users_ids)
+    user_original_id_to_mapped_id = pd.Series(
+        users_mapped_ids,
+        index=users_original_ids
+    )
+
+    num_users_to_recommend = users_df['user_id'].shape[0]
+
     with open("submission.csv", 'w') as csvfile:
 
         csvwriter = csv.writer(csvfile)

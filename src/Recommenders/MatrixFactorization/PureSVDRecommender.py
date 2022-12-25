@@ -10,7 +10,7 @@ from src.Recommenders.BaseSimilarityMatrixRecommender import BaseItemSimilarityM
 from src.Recommenders.Similarity.Compute_Similarity_Python import Incremental_Similarity_Builder
 from src.Recommenders.BaseMatrixFactorizationRecommender import BaseSVDRecommender
 from src.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
-from sklearn.src.Utils.extmath import randomized_svd
+from sklearn.utils.extmath import randomized_svd
 import scipy.sparse as sps
 import numpy as np
 import time

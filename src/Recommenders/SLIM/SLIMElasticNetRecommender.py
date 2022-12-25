@@ -17,7 +17,7 @@ from src.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 import time
 import sys
 from tqdm import tqdm
-from sklearn.src.Utils._testing import ignore_warnings
+from sklearn.utils._testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
 
 # os.environ["PYTHONWARNINGS"] = ('ignore::exceptions.ConvergenceWarning:sklearn.linear_model')

@@ -60,3 +60,22 @@ The submission file should contain all and only these users.
 | score   | recommenders |
 | ------- | ------------ |
 | 0.04425 | P3Alpha      |
+
+## To Do
+
+- cutoff [5, 10, 15]
+
+## Experiments
+
+### 26/12
+
+ItemKNN + Hybrid(ItemKNN, P3Alpha)
+
+### 27/12
+
+PureSVD + Hybrid(ItemKNN, P3Alpha, PureSVD)
+
+### 28/12
+
+P3Alpha vs RP3Beta
+CBC version (?)

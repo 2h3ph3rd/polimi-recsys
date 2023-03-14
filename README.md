@@ -2,7 +2,7 @@
 
 Solution for recommender systems challenge at Polimi for the accademic year 2022/2023.
 
-Please note that the implementation code of the algorithm has been taken from the course's repository.
+Please note that the implementation code of the algorithms has been taken from the course's repository.
 
 https://github.com/MaurizioFD/RecSys_Course_AT_PoliMi
 

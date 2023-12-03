@@ -1,6 +1,6 @@
 # POLIMI - Recommender Systems Challenge
 
-My solution to the Recommender Systems challenge at Polimi for the academic year 2022/2023. 
+My solution to the Recommender Systems challenge at Polimi for the academic year 2022-2023. 
 
 It's important to mention that a significant portion of the code and algorithms has been taken from the official course's repository.
 

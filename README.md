@@ -1,4 +1,4 @@
-# POLIMI - Recommender Systems Challenge
+# Polimi - Recommender Systems Challenge
 
 This repository contains my solution to the Recommender Systems challenge at Polimi during the academic year 2022-2023.
 

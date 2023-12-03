@@ -1,8 +1,8 @@
-# RecSys Challenge 2022
+# POLIMI - Recommender Systems Challenge
 
-Solution for recommender systems challenge at Polimi for the accademic year 2022/2023.
+My solution to the Recommender Systems challenge at Polimi for the academic year 2022/2023. 
 
-Please note that the implementation code of the algorithms has been taken from the course's repository.
+It's important to mention that a significant portion of the code and algorithms has been taken from the official course's repository.
 
 https://github.com/MaurizioFD/RecSys_Course_AT_PoliMi
 

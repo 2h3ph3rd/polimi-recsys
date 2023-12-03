@@ -1,6 +1,8 @@
 # POLIMI - Recommender Systems Challenge
 
-My solution to the Recommender Systems challenge at Polimi for the academic year 2022-2023. 
+This repository contains my solution to the Recommender Systems challenge at Polimi during the academic year 2022-2023.
+
+https://www.kaggle.com/competitions/recommender-system-2022-challenge-polimi
 
 It's important to mention that a significant portion of the code and algorithms has been taken from the official course's repository.
 
